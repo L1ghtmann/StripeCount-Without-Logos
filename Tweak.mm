@@ -47,12 +47,12 @@ static void hook_ZBPackageListTableViewController_viewDidAppear(ZBPackageListTab
 	// if we're on the packages page (index 3) and stripeCount hasn't been made yet...
 	if(self.tabBarController.selectedIndex == 3 && !self.stripeCount){
 		// Create label
-		self.stripeCount = [[UILabel alloc] initWithFrame:CGRectZero];
+		self.stripeCount = [[UILabel alloc] init];
 		[self.view addSubview:self.stripeCount];
 
 		[self.stripeCount setTranslatesAutoresizingMaskIntoConstraints:NO];
 		[self.stripeCount.heightAnchor constraintEqualToConstant:20].active = YES;
-		[self.stripeCount.widthAnchor constraintEqualToConstant:self.view.bounds.size.width].active = YES;
+		[self.stripeCount.widthAnchor constraintEqualToAnchor:self.view.window.widthAnchor].active = YES;
 		[self.stripeCount.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:-12].active = YES;
 
 		// RTL Support

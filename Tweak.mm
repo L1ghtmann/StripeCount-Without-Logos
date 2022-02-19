@@ -1,9 +1,12 @@
+//
+//	Tweak.mm
+//	StripeCount (w/o Logos)
+//
+//	Created by Lightmann during COVID-19
+//
+
 #import <substrate.h>
 #import "Tweak.h"
-
-// Lightmann
-// Made during COVID-19
-// StripeCount (w/o Logos)
 
 CGFloat labelXOffset;
 CGFloat labelWidth;
@@ -23,7 +26,7 @@ static void new_ZBPackageListTableViewController_reconfigureStripeCount(ZBPackag
 
 // get values we'll use for positioning later
 static void hook__UITableViewHeaderFooterViewLabel_setFrame(_UITableViewHeaderFooterViewLabel *self, SEL cmd, CGRect *frame) {
-    orig__UITableViewHeaderFooterViewLabel_setFrame(self, cmd, frame);
+	orig__UITableViewHeaderFooterViewLabel_setFrame(self, cmd, frame);
 
 	if([[self _viewControllerForAncestor] isMemberOfClass:objc_getClass("ZBPackageListTableViewController")]){
 		labelXOffset = self.frame.origin.x;
@@ -37,12 +40,12 @@ static UILabel* new_ZBPackageListTableViewController_stripeCount(ZBPackageListTa
 }
 
 static void new_ZBPackageListTableViewController_setStripeCount(ZBPackageListTableViewController *self, SEL cmd, UILabel *newLabel) {
-    if (_stripeCount != newLabel) _stripeCount = newLabel;
+	if (_stripeCount != newLabel) _stripeCount = newLabel;
 }
 
 // where the magic happens . . .
 static void hook_ZBPackageListTableViewController_viewDidAppear(ZBPackageListTableViewController *self, SEL cmd, BOOL appeared) {
-    orig_ZBPackageListTableViewController_viewDidAppear(self, cmd, appeared);
+	orig_ZBPackageListTableViewController_viewDidAppear(self, cmd, appeared);
 
 	// if we're on the packages page (index 3) and stripeCount hasn't been made yet...
 	if(self.tabBarController.selectedIndex == 3 && !self.stripeCount){
@@ -99,13 +102,13 @@ static void new_ZBPackageListTableViewController_reconfigureStripeCount(ZBPackag
 
 // ctor
 __attribute__((constructor)) static void init() {
-    // _UITableViewHeaderFooterViewLabel | setFrame:
+	// _UITableViewHeaderFooterViewLabel | setFrame:
 	MSHookMessageEx(
-        objc_getClass("_UITableViewHeaderFooterViewLabel"), // hook class
-        @selector(setFrame:), // target this method
-        (IMP)&hook__UITableViewHeaderFooterViewLabel_setFrame, // implementation to override orig
-        (IMP *)&orig__UITableViewHeaderFooterViewLabel_setFrame // orig
-    );
+		objc_getClass("_UITableViewHeaderFooterViewLabel"), // hook class
+		@selector(setFrame:), // target this method
+		(IMP)&hook__UITableViewHeaderFooterViewLabel_setFrame, // implementation to override orig
+		(IMP *)&orig__UITableViewHeaderFooterViewLabel_setFrame // orig
+	);
 
 	// @property (nonatomic, retain) UILabel *stripeCount;
 	// note: can't add an ivar to an existing class at runtime,
@@ -123,34 +126,34 @@ __attribute__((constructor)) static void init() {
 
 	// UILabel *stripeCount getter
 	class_addMethod(
-        objc_getClass("ZBPackageListTableViewController"),
-        @selector(stripeCount),
-        (IMP)&new_ZBPackageListTableViewController_stripeCount,
-        "@@:" // characters to describe the type(s) in the new method. in this case, stripeCount returns a UILabel and doesn't accept an argument
+		objc_getClass("ZBPackageListTableViewController"),
+		@selector(stripeCount),
+		(IMP)&new_ZBPackageListTableViewController_stripeCount,
+		"@@:" // characters to describe the type(s) in the new method. in this case, stripeCount returns a UILabel and doesn't accept an argument
 		// useful link: https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html
 	);
 
 	// UILabel *stripeCount setter
 	class_addMethod(
-        objc_getClass("ZBPackageListTableViewController"),
-        @selector(setStripeCount:),
-        (IMP)&new_ZBPackageListTableViewController_setStripeCount,
-        "v@:@" // setStripeCount: returns void and accepts a UILabel argument
-    );
+		objc_getClass("ZBPackageListTableViewController"),
+		@selector(setStripeCount:),
+		(IMP)&new_ZBPackageListTableViewController_setStripeCount,
+		"v@:@" // setStripeCount: returns void and accepts a UILabel argument
+	);
 
 	// ZBPackageListTableViewController | viewDidAppear:
 	MSHookMessageEx(
-        objc_getClass("ZBPackageListTableViewController"),
-        @selector(viewDidAppear:),
-        (IMP)&hook_ZBPackageListTableViewController_viewDidAppear,
-        (IMP *)&orig_ZBPackageListTableViewController_viewDidAppear
-    );
+		objc_getClass("ZBPackageListTableViewController"),
+		@selector(viewDidAppear:),
+		(IMP)&hook_ZBPackageListTableViewController_viewDidAppear,
+		(IMP *)&orig_ZBPackageListTableViewController_viewDidAppear
+	);
 
 	// reconfigureStripeCount
-    class_addMethod(
-        objc_getClass("ZBPackageListTableViewController"),
-        @selector(reconfigureStripeCount),
-        (IMP)&new_ZBPackageListTableViewController_reconfigureStripeCount,
-        "v@:" // reconfigureStripeCount returns void and doesn't accept an argument
-    );
+	class_addMethod(
+		objc_getClass("ZBPackageListTableViewController"),
+		@selector(reconfigureStripeCount),
+		(IMP)&new_ZBPackageListTableViewController_reconfigureStripeCount,
+		"v@:" // reconfigureStripeCount returns void and doesn't accept an argument
+	);
 }
